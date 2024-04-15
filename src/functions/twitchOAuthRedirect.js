@@ -53,14 +53,14 @@ app.http('twitchOAuthRedirect', {
         }
 
         context.log('Token is valid. Adding account data to CosmosDB...')
-        const accountData = JSON.parse({
+        const accountData = {
             twitchUserId: tokenValidation.data.user_id,
             login: tokenValidation.data.login,
             access_token: data.data.access_token,
             refresh_token: data.data.refresh_token,
             scope: scope, 
             token_type: data.data.token_type
-        });
+        };
         context.log("Account Data: " + JSON.stringify(accountData));
 
         context.log("Adding account data to CosmosDB...");
