@@ -56,14 +56,18 @@ app.http('twitchOAuthRedirect', {
         };
         context.log("Account Data: " + JSON.stringify(accountData));
 
-        
         // Connecting to DB client
-        context.info("Connecting to Cosmos DB...")
-        const client = await new CosmosClient(process.env.CosmosDbConnectionSetting);
-        const database = await client.database('playdatesBot');
-        const container = await database.container('twitchAuthorization');
-        const dbResponse = await container.items.upsert(accountData);
-        context.log("DB Response: " + JSON.stringify(dbResponse));
+        try {
+            context.info("Connecting to Cosmos DB...")
+            const client = await new CosmosClient(process.env.CosmosDbConnectionSetting);
+            const database = await client.database('playdatesBot');
+            const container = await database.container('twitchAuthorization');
+            const dbResponse = await container.items.upsert(accountData);
+            context.log("DB Response: " + JSON.stringify(dbResponse));
+        } catch (error) {
+            context.error("Error connecting to Cosmos DB: " + error);
+            return { status: 500, body: "Error connecting to Cosmos DB."};
+        }
 
         return { status: 200, body: `Thank you for authorizing the BlingBot for the Twitch account: ${accountData.login}!`};
     }
