@@ -5,7 +5,6 @@ const CosmosClient = require('@azure/cosmos').CosmosClient;
 app.http('twitchOAuthRedirect', {
     methods: ['GET', 'POST'],
     authLevel: 'anonymous',
-    return: cosmosOutput,
     handler: async (request, context) => {
         context.log(`Http function processed request for url "${request.url}" to valiadte oAuth tokens...`);
 
