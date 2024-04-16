@@ -1,12 +1,6 @@
-const { app, output } = require('@azure/functions');
+const { app } = require('@azure/functions');
 const axios = require('axios');
-
-const cosmosOutput = output.cosmosDB({
-    databaseName: "playdatesBot",
-    collectionName: "twitchAuthorization",
-    createIfNotExists: true,
-    connectionStringsetting: process.env.CosmosDbConnectionSetting
-})
+const CosmosClient = require('@azure/cosmos').CosmosClient;
 
 app.http('twitchOAuthRedirect', {
     methods: ['GET', 'POST'],
@@ -63,7 +57,15 @@ app.http('twitchOAuthRedirect', {
         };
         context.log("Account Data: " + JSON.stringify(accountData));
 
-        context.log("Adding account data to CosmosDB...");
-        return accountData;
+        
+        // Connecting to DB client
+        context.info("Connecting to Cosmos DB...")
+        const client = await new CosmosClient(process.env.CosmosDbConnectionSetting);
+        const database = await client.database('playdatesBot');
+        const container = await database.container('twitchAuthorization');
+        const dbResponse = await container.items.upsert(accountData);
+        context.log("DB Response: " + JSON.stringify(dbResponse));
+
+        return { status: 200, body: `Thank you for authorizing the BlingBot for the Twitch account: ${accountData.login}!`};
     }
 });
