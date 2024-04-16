@@ -11,8 +11,7 @@ app.http('twitchOAuthRedirect', {
         context.log("Checking for errors...")
         if (request.query.get('error') || request.query.get('error_description')) {
             context.error(`Error: ${request.query.get('error')}, ${request.query.get('error_description')}`);
-            //return { body: "Authorization denied. :("}
-            return;
+            return { body: "Authorization denied. :("}
         }
         
         const code = request.query.get('code');
