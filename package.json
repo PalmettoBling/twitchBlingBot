@@ -9,7 +9,8 @@
   "dependencies": {
     "@azure/cosmos": "^4.0.0",
     "@azure/functions": "^4.0.0",
-    "axios": "^1.6.8"
+    "axios": "^1.6.8",
+    "crypto": "^1.0.1"
   },
   "main": "src/functions/*.js"
 }
