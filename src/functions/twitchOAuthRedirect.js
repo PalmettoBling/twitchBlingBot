@@ -37,7 +37,6 @@ app.http('twitchOAuthRedirect', {
                 'Authorization': `OAuth ${data.data.access_token}`
             }
         });
-        context.log("Token Validation: " + JSON.stringify(tokenValidation.data));
         
         if (tokenValidation.status !== 200) {
             context.error("Token validation failed.");
@@ -53,7 +52,6 @@ app.http('twitchOAuthRedirect', {
             scope: scope, 
             token_type: data.data.token_type
         };
-        context.log("Account Data: " + JSON.stringify(accountData));
 
         // Connecting to DB client
         try {
@@ -62,7 +60,6 @@ app.http('twitchOAuthRedirect', {
             const database = await client.database('playdatesBot');
             const container = await database.container('twitchAuthorization');
             const dbResponse = await container.items.upsert(accountData);
-            context.log("DB Response: " + dbResponse);
         } catch (error) {
             context.error("Error connecting to Cosmos DB: " + error);
             return { status: 500, body: "Error connecting to Cosmos DB."};
