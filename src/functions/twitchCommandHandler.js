@@ -1,5 +1,5 @@
 const { app } = require('@azure/functions');
-const { crypto } = require('crypto');
+const crypto = require('crypto');
 
 app.http('twitchCommandHandler', {
     methods: ['GET', 'POST'],
@@ -9,20 +9,24 @@ app.http('twitchCommandHandler', {
 
         // Getting Headers and body from request
         // Body is also parsed into an object for reference
-        const signature = await request.headers.get('Twitch-Eventsub-Message-Signature').toLowerCase();
-        const timestamp = await request.headers.get('Twitch-Eventsub-Message-Timestamp').toLowerCase();
-        const messageId = await request.headers.get('Twitch-Eventsub-Message-Id').toLowerCase();
-        const messageType = await request.headers.get('Twitch-Eventsub-Message-Type').toLowerCase();
-        const body = await request.text();
+        const signature = request.headers.get('Twitch-Eventsub-Message-Signature').toLowerCase();
+        const timestamp = request.headers.get('Twitch-Eventsub-Message-Timestamp').toLowerCase();
+        const messageId = request.headers.get('Twitch-Eventsub-Message-Id').toLowerCase();
+        const messageType = request.headers.get('Twitch-Eventsub-Message-Type').toLowerCase();
+        const body = request.text();
         const bodyObject = JSON.parse(body);
-        context.info("Request body: " + body);
 
         // Getting message and secret
+        context.info("Message ID: " + messageId);
+        context.info("Timestamp: " + timestamp);
+        context.info("Request body: " + body);
         const message = `${messageId}${timestamp}${body}`;
-        let hmac = `sha256=` + crypto.createHmac('sha256', process.env.TWITCH_EVENTSUB_SECRET).update(message).digest('hex');
+        context.info("Message: " + message);
+        let hmac = 'sha256=' + (crypto.createHmac('sha256', process.env.TWITCH_WEBHOOK_SECRET).update(message).digest('hex'));
 
         // Verifying signature
         const verify = crypto.timingSafeEqual(Buffer.from(hmac), Buffer.from(signature));
+        context.info("Verify: " + verify);
 
         // If not verified, returning 4xx error
         if (!verify) {
@@ -31,15 +35,14 @@ app.http('twitchCommandHandler', {
         }
 
         // Challenge and response (ping pong)
+        context.info("Signature verified. Responding processing");
         if (messageType === 'webhook_callback_verification') {
+            context.info("Challenge: " + bodyObject.challenge);
             return { body: bodyObject.challenge };
         } else if (messageType === 'revocation') {
             context.log("Subscription revoked: " + JSON.stringify(bodyObject.subscription.status));
             return { status: 204 };
         }
-
-        context.info("Signature verified.");
-        context.info("Notification: " + JSON.stringify(bodyObject));
 
         // Check if notificaiton, if not, raise WTF flag
         if (messageType !== 'notification') {
@@ -49,7 +52,6 @@ app.http('twitchCommandHandler', {
 
         // Process notification, sending to other functions?
         
-
         return { body: `Function successfully ran` };
     }
 });
