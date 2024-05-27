@@ -26,7 +26,7 @@ app.http('twitchCommandHandler', {
         let message = messageId + timestamp + body;
         let hmac = 'sha256=' + getHmac(process.env.TWITCH_WEBHOOK_SECRET, message);
         
-        if (false = verifyMessage(hmac, signature)) {
+        if (false === verifyMessage(hmac, signature)) {
             context.error("Message could not be verified");
             return { status: 403, body: `Message could not be verified` };
         } else {
