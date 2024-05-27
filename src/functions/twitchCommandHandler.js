@@ -44,7 +44,7 @@ app.http('twitchCommandHandler', {
                 context.info("Subscription revoked");
                 context.info(bodyObject.subscritpion.type + " notificaiton revoked.");
                 context.info("Reason: " + bodyObject.subscritption.status);
-                context.info("Condition: " + JSON.stringify(bodyObject.subscription.condition);
+                context.info("Condition: " + JSON.stringify(bodyObject.subscription.condition));
                 // Handle subscription revocation
             }
         }  
