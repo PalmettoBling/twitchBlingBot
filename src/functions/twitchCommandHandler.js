@@ -47,8 +47,7 @@ app.http('twitchCommandHandler', {
                 context.info("Condition: " + JSON.stringify(bodyObject.subscription.condition);
                 // Handle subscription revocation
             }
-        }
-        
+        }  
         
         return { body: `Function successfully ran` };
     }
