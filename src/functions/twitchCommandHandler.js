@@ -14,16 +14,21 @@ app.http('twitchCommandHandler', {
         const messageId = request.headers.get('Twitch-Eventsub-Message-Id').toLowerCase();
         const messageType = request.headers.get('Twitch-Eventsub-Message-Type').toLowerCase();
         const body = await request.text();
+        const bodyString = body.toString();
         const bodyObject = JSON.parse(body);
 
         // Getting message and secret
         context.info("Message ID: " + messageId);
         context.info("Timestamp: " + timestamp);
         context.info("Request body: " + body);
+        context.info("Request Body String? " + bodyString)
         context.info("Message Type: " + messageType);
         
-        const message = timestamp + messageId + body;
+        const message = messageId + timestamp + bodyString;
         const hmac = 'sha256=' + crypto.createHmac('sha256', process.env.TWITCH_WEBHOOK_SECRET).update(Buffer.from(message)).digest('hex');
+        context.log("HMAC: " + hmac);
+        context.log("Signature: " + signature);
+        context.log("Message: " + message);
         
         if (true === crypto.timingSafeEqual(Buffer.from(hmac), Buffer.from(signature))) {
             context.info("Message verified");
