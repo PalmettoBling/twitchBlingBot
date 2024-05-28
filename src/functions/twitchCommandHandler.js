@@ -1,5 +1,5 @@
 const { app } = require('@azure/functions');
-const crypto = require('crypto');
+const crypto = require('node:crypto');
 
 app.http('twitchCommandHandler', {
     methods: ['GET', 'POST'],
@@ -24,7 +24,7 @@ app.http('twitchCommandHandler', {
         context.info("Message Type: " + messageType);
         
         const message = messageId + timestamp + body;
-        const hmac = 'sha256=' + crypto.createHmac('sha256', process.env.TWITCH_WEBHOOK_SECRET).update(message).digest('hex');
+        const hmac = 'sha256=' + (crypto.createHmac('sha256', process.env.TWITCH_WEBHOOK_SECRET).update(message).digest('hex'));
         context.log("HMAC: " + hmac);
         context.log("Signature: " + signature);
         context.log("Message: " + message);
