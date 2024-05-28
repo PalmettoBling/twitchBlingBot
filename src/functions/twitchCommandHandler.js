@@ -13,13 +13,9 @@ app.http('twitchCommandHandler', {
         const timestamp = request.headers.get('Twitch-Eventsub-Message-Timestamp').toLowerCase();
         const messageId = request.headers.get('Twitch-Eventsub-Message-Id').toLowerCase();
         const messageType = request.headers.get('Twitch-Eventsub-Message-Type').toLowerCase();
-        const body = (await request.text()).toLowerCase();
+        const body = await request.text();
 
         const bodyObject = JSON.parse(body);
-
-        for (var headers of request.headers) {
-            context.log(`${headers[0]}: ${headers[1]}`);
-        }
 
         // Getting message and secret
         context.info("Message ID: " + messageId);
@@ -28,7 +24,7 @@ app.http('twitchCommandHandler', {
         context.info("Message Type: " + messageType);
         
         const message = messageId + timestamp + body;
-        const hmac = 'sha256=' + crypto.createHmac('sha256', process.env.TWITCH_WEBHOOK_SECRET).update(Buffer.from(message)).digest('hex');
+        const hmac = 'sha256=' + crypto.createHmac('sha256', process.env.TWITCH_WEBHOOK_SECRET).update(message).digest('hex');
         context.log("HMAC: " + hmac);
         context.log("Signature: " + signature);
         context.log("Message: " + message);
